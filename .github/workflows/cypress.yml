@@ -1,0 +1,29 @@
+name: Cypress Tests
+on: [push]
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    # Executa testes em paralelo com estratégia de matriz
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]  # Usa 2 instâncias em paralelo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cypress run
+        # Usa a ação oficial do Cypress para GitHub Actions
+        uses: cypress-io/github-action@v6
+        with:
+          # Inicia o servidor web para os testes E2E - substitua pelo comando do seu projeto
+          start: npm start
+          wait-on: 'http://localhost:3000' # Aguarda a URL acima ficar disponível
+          # Registra os testes no Cypress Cloud
+          record: true
+          parallel: true # Executa os testes em paralelo
+        env:
+          # Para gravação e paralelização funcionarem, você precisa definir a variável CYPRESS_RECORD_KEY
+          # No GitHub: Vá em Settings → Secrets → Actions e adicione a sua chave
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # Token para autenticação; já vem configurado automaticamente para repositórios públicos
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
